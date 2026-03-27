@@ -8,11 +8,38 @@
       * {
         box-sizing: border-box;
       }
+
+      :root {
+        --bg: linear-gradient(135deg, #f5f7fb, #e9eef7);
+        --text: #1f2937;
+        --muted: #6b7280;
+        --card: #ffffff;
+        --border: #e5e7eb;
+        --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        --primary: #2563eb;
+        --primaryHover: #1d4ed8;
+        --secondary: #e5e7eb;
+        --secondaryHover: #d1d5db;
+        color-scheme: light;
+      }
+
+      [data-theme="dark"] {
+        --bg: linear-gradient(135deg, #111827, #1f2937);
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --card: #1f2937;
+        --border: #374151;
+        --shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        --secondary: #374151;
+        --secondaryHover: #4b5563;
+        color-scheme: dark;
+      }
+
       body {
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
-        background: linear-gradient(135deg, #f5f7fb, #e9eef7);
-        color: #1f2937;
+        background: var(--bg);
+        color: var(--text);
         padding: 24px 16px;
       }
       .container {
@@ -35,14 +62,14 @@
       }
       .brand span {
         font-size: 13px;
-        color: #6b7280;
+        color: var(--muted);
         margin-top: 2px;
       }
       .hero {
-        background: #ffffff;
+        background: var(--card);
         border-radius: 18px;
         padding: 22px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        box-shadow: var(--shadow);
         margin-bottom: 18px;
       }
       .hero h1 {
@@ -52,7 +79,7 @@
       }
       .hero p {
         margin: 0 0 16px 0;
-        color: #4b5563;
+        color: var(--muted);
         line-height: 1.6;
       }
       .cta-row {
@@ -71,18 +98,18 @@
         font-weight: bold;
       }
       a.btn-primary {
-        background: #2563eb;
+        background: var(--primary);
         color: #fff;
       }
       a.btn-primary:hover {
-        background: #1d4ed8;
+        background: var(--primaryHover);
       }
       a.btn-secondary {
-        background: #e5e7eb;
-        color: #111827;
+        background: var(--secondary);
+        color: var(--text);
       }
       a.btn-secondary:hover {
-        background: #d1d5db;
+        background: var(--secondaryHover);
       }
       .grid {
         display: grid;
@@ -95,10 +122,10 @@
         }
       }
       .card {
-        background: #ffffff;
+        background: var(--card);
         border-radius: 16px;
         padding: 16px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--border);
       }
       .card strong {
         display: block;
@@ -106,14 +133,14 @@
         font-size: 15px;
       }
       .card span {
-        color: #4b5563;
+        color: var(--muted);
         line-height: 1.6;
         font-size: 14px;
       }
       footer {
         margin-top: 18px;
         padding-top: 14px;
-        color: #6b7280;
+        color: var(--muted);
         font-size: 13px;
         line-height: 1.6;
         text-align: center;
@@ -121,9 +148,37 @@
       .kbd {
         padding: 2px 8px;
         border-radius: 10px;
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
+        background: rgba(248, 250, 252, 0.85);
+        border: 1px solid var(--border);
         font-weight: bold;
+      }
+
+      [data-theme="dark"] .kbd {
+        background: rgba(17, 24, 39, 0.55);
+      }
+
+      .theme-toggle {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.6);
+        color: var(--text);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease, background 0.2s ease;
+        flex: 0 0 auto;
+      }
+
+      [data-theme="dark"] .theme-toggle {
+        background: rgba(31, 41, 55, 0.6);
+      }
+
+      .theme-toggle:hover {
+        transform: translateY(-1px);
       }
     </style>
   </head>
@@ -134,6 +189,10 @@
           <strong>Семейный бюджет</strong>
           <span>Калькулятор доходов и расходов + прогноз накоплений</span>
         </div>
+
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Переключить тему" title="Переключить тему">
+          <span id="themeIcon" aria-hidden="true">🌙</span>
+        </button>
       </header>
 
       <section class="hero">
@@ -175,6 +234,39 @@
         Проект-лендинг и калькулятор сделаны в виде простых статических страниц (HTML/CSS/JS).
       </footer>
     </div>
+
+    <script>
+      const THEME_STORAGE_KEY = "landingTheme";
+
+      function applyTheme(theme) {
+        const root = document.documentElement;
+        const icon = document.getElementById("themeIcon");
+
+        if (theme === "dark") {
+          root.setAttribute("data-theme", "dark");
+          icon.textContent = "☀️";
+        } else {
+          root.removeAttribute("data-theme");
+          icon.textContent = "🌙";
+        }
+      }
+
+      function getInitialTheme() {
+        const saved = localStorage.getItem(THEME_STORAGE_KEY);
+        if (saved === "light" || saved === "dark") return saved;
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+
+      function toggleTheme() {
+        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+        const next = isDark ? "light" : "dark";
+        localStorage.setItem(THEME_STORAGE_KEY, next);
+        applyTheme(next);
+      }
+
+      applyTheme(getInitialTheme());
+      document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+    </script>
   </body>
 </html>
 
